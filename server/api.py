@@ -61,10 +61,8 @@ def add_comment(remote_id, thread):
         f.write(json.dumps(payload))
 
     # Commit changes to messages-branch
-    branch_name = repo.active_branch.name
-    if branch_name != 'streamd-comments':
-        repo.git.checkout(orphan='streamd-comments')
-    repo.git.add('.')
+    repo.git.checkout('streamd-comments')
+    repo.git.add(message_file)
     repo.git.commit(m=f'add {username} message')
     repo.git.push('origin', 'streamd-comments')
 
@@ -105,6 +103,13 @@ def new_repository():
 
     repo.git.checkout(b='master')
     repo.git.checkout(orphan='streamd-comments')
+
+    init_file = os.path.join(repo.working_tree_dir, 'init')
+    open(init_file, 'w').close()
+    repo.index.add([init_file])
+    repo.index.commit("add init file")
+    repo.git.push('origin', 'streamd-comments')
+
 
     #mythread = MyThread()
     #mythread.start()
