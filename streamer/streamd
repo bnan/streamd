@@ -4,10 +4,28 @@ import os
 import sys
 import subprocess
 import tempfile
+import time
+import random
 
 import git
 import requests
 from git import Repo
+
+
+def watch(repo):
+    repo.git.checkout(b='master')
+
+    try:
+        while True:
+            # check if the index has changes
+            if repo.is_dirty():
+                repo.git.add('-u')
+                repo.git.commit(m='streamd: update')
+                repo.git.push('streamd-remote', 'master')
+
+            time.sleep(0.1)  # 100ms
+    except KeyboardInterrupt:
+        return
 
 
 def main(argv):
@@ -43,6 +61,8 @@ def main(argv):
         repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
 
     repo.create_remote('streamd-remote', 'git://127.0.0.1/' + r.text)
+
+    watch(repo)
 
 
 if __name__ == '__main__':

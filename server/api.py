@@ -7,21 +7,19 @@ import subprocess
 import tempfile
 import threading
 import time
-
 from pathlib import Path
 
 import flask
 import git
-from git import Repo
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
 from git import Repo
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 REPO_BASE = os.path.join(Path.home(), 'streamd')
+REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
 
@@ -29,9 +27,8 @@ REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 # have to parse it to know which thread is and then remove that field
 # so that it won't be stored redundantly
 @app.route('/api/v1/comments/<remote_id>/<thread>', methods=['POST'])
-def routes(remote_id, thread):
-    homedir = os.path.expanduser('~')
-    repo_dir = f'{homedir}/streamd/{remote_id}'
+def add_comment(remote_id, thread):
+    repo_dir = f'{REPO_LOCAL_BASE}/{remote_id}'
 
     # Sanity checks to ensure correctness
     try:
@@ -66,55 +63,60 @@ def routes(remote_id, thread):
     # Commit changes to messages-branch
     branch_name = repo.active_branch.name
     if branch_name != 'streamd-comments':
-        repo.git.checkout('streamd-comments')
+        repo.git.checkout(orphan='streamd-comments')
     repo.git.add('.')
     repo.git.commit(m=f'add {username} message')
+    repo.git.push('origin', 'streamd-comments')
 
     return jsonify(**{ 'error': False, 'message': 'Message Stored' })
 
 @app.route('/new/repo', methods=['POST'])
 def new_repository():
-    #bundle_f = flask.request.files.get('bundle')
+    bundle_f = flask.request.files.get('bundle')
 
-    ## generate a random id for this repo
-    #while True:
-    #    repo_id = ''.join(random.choices(string.ascii_letters + string.digits,
-    #                                     k=REPO_ID_LENGTH))
+    # generate a random id for this repo
+    while True:
+        repo_id = ''.join(random.choices(string.ascii_letters + string.digits,
+                                         k=REPO_ID_LENGTH))
 
-    #    repo_path = os.path.join(REPO_BASE, repo_id)
+        repo_path = os.path.join(REPO_BASE, repo_id+'.git')
 
-    #    try:
-    #        repo = Repo(os.path.join(repo_path))
-    #    except git.exc.NoSuchPathError:
-    #        break
+        try:
+            repo = Repo(os.path.join(repo_path))
+        except git.exc.NoSuchPathError:
+            break
 
-    #if bundle_f is not None:
-    #    h,bundle = tempfile.mkstemp(suffix='.bundle')
-    #    bundle_f.save(bundle)
+    if bundle_f is not None:
+        h,bundle = tempfile.mkstemp(suffix='.bundle')
+        bundle_f.save(bundle)
 
-    #    subprocess.run(['git', 'clone', '-b', 'master', bundle, repo_id],
-    #                   cwd=REPO_BASE)
+        subprocess.run(['git', 'clone', '--bare', bundle, repo_id],
+                       cwd=REPO_BASE)
 
-    #    os.remove(bundle)
-    #else:
-    #    Repo.init(os.path.join(repo_path))
+        os.remove(bundle)
+    else:
+        repo = Repo.init(os.path.join(repo_path), bare=True)
 
-    #open(os.path.join(repo_path, '.git', 'git-daemon-export-ok'), 'w').close()
+    open(os.path.join(repo_path, 'git-daemon-export-ok'), 'w').close()
 
-    #repo = Repo(repo_path)
-    #repo.git.checkout(orphan='streamd-comments')
+    print(repo_path)
 
-    mythread = MyThread()
-    mythread.start()
-    return 'as'
-    #return repo_id
+    repo = Repo.clone_from(repo_path, os.path.join(REPO_LOCAL_BASE, repo_id))
+
+    repo.git.checkout(b='master')
+    repo.git.checkout(orphan='streamd-comments')
+
+    #mythread = MyThread()
+    #mythread.start()
+    #return 'as'
+    return repo_id
 
 
-class Publisher(threading.Thread):
-    def run(self):
-        print("{} started!".format(self.getName()))              # "Thread-x started!"
-        time.sleep(1)                                      # Pretend to work for a second
-        print("{} finished!".format(self.getName()))             # "Thread-x finished!"
+#class Publisher(threading.Thread):
+#    def run(self):
+#        print("{} started!".format(self.getName()))              # "Thread-x started!"
+#        time.sleep(1)                                      # Pretend to work for a second
+#        print("{} finished!".format(self.getName()))             # "Thread-x finished!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=1337, debug=True)
