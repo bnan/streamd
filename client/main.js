@@ -1,5 +1,5 @@
 const API_URL = 'http://0.0.0.0:1337/api/v1'
-const STREAM_URL = 'http://0.0.0.0:1338/'
+const STREAM_URL = 'http://0.0.0.0:1338/watchd/'
 
 async function comment(repository, comment) {
   const data = {
