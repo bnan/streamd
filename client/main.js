@@ -1,4 +1,5 @@
 const API_URL = 'http://0.0.0.0:1337/api/v1'
+const STREAM_URL = 'http://0.0.0.0:1338/'
 
 async function comment(repository, comment) {
   const data = {
@@ -22,19 +23,29 @@ async function comment(repository, comment) {
 
 async function load(file) {
   try {
-    let response = await fetch(file)
-    return response
+    let response = await fetch(`${STREAM_URL}/${file}`)
+    let text = await response.text()
+    return text
   } catch (error) {
     console.error(error)
   }
 }
 
 async function main() {
-  let file = window.location.search.substring(1)
-  console.log('file', file)
+  let filename = window.location.search.substring(1)
+  console.log('filename', filename)
 
-  let response = await load(file)
-  console.log('response', response)
+  let pieces = filename.split('.')
+  let extension = pieces[pieces.length-1]
+  console.log('extension', extension)
+
+  const el = document.querySelector('#source pre code')
+  el.classList.add(`language-${extension}`)
+
+  setInterval(async () => {
+    let file = await load(filename)
+    el.innerHTML = file
+  }, 500)
 }
 
 main()
