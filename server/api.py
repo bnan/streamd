@@ -6,21 +6,19 @@ import string
 import subprocess
 import tempfile
 import time
-
 from pathlib import Path
 
 import flask
 import git
-from git import Repo
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
 from git import Repo
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 REPO_BASE = os.path.join(Path.home(), 'streamd')
+REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
 
@@ -80,7 +78,7 @@ def new_repository():
         repo_id = ''.join(random.choices(string.ascii_letters + string.digits,
                                          k=REPO_ID_LENGTH))
 
-        repo_path = os.path.join(REPO_BASE, repo_id)
+        repo_path = os.path.join(REPO_BASE, repo_id+'.git')
 
         try:
             repo = Repo(os.path.join(repo_path))
@@ -91,16 +89,20 @@ def new_repository():
         h,bundle = tempfile.mkstemp(suffix='.bundle')
         bundle_f.save(bundle)
 
-        subprocess.run(['git', 'clone', '-b', 'master', bundle, repo_id],
+        subprocess.run(['git', 'clone', '--bare', bundle, repo_id],
                        cwd=REPO_BASE)
 
         os.remove(bundle)
     else:
-        Repo.init(os.path.join(repo_path))
+        repo = Repo.init(os.path.join(repo_path), bare=True)
 
-    open(os.path.join(repo_path, '.git', 'git-daemon-export-ok'), 'w').close()
+    open(os.path.join(repo_path, 'git-daemon-export-ok'), 'w').close()
 
-    repo = Repo(repo_path)
+    print(repo_path)
+
+    repo = Repo.clone_from(repo_path, os.path.join(REPO_LOCAL_BASE, repo_id))
+
+    repo.git.checkout(b='master')
     repo.git.checkout(orphan='streamd-comments')
 
     return repo_id
