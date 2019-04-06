@@ -58,7 +58,10 @@ def main(argv):
 
         assert r.status_code == 200
 
-        repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+        try:
+            repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+        except git.exc.GitCommandError:
+            repo = Repo.init(repo_path)
 
     remote = 'git://127.0.0.1/' + r.text
 
