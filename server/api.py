@@ -25,7 +25,8 @@ REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 @app.route('/api/v1/streams', methods=['GET'])
 def list_available_streams():
     list_available = os.listdir(REPO_LOCAL_BASE);
-    list_details = [{"name":"demo","text":"xxxx"} for i in enumerate(list_available)]
+    list_details = [{"name":"não sei o que ","text":"poderia estar aqui"}
+            for i in enumerate(list_available)]
     d = dict(zip(list_available, list_details))
 
     return jsonify(d)
