@@ -22,6 +22,9 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
+os.makedirs(REPO_BASE, exist_ok=True)
+os.makedirs(REPO_LOCAL_BASE, exist_ok=True)
+
 @app.route('/', methods=['GET'])
 def index():
     list_available = os.listdir(REPO_LOCAL_BASE);
