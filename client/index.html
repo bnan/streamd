@@ -4,7 +4,9 @@
   <title>StreamD</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="styles/style.css">
+  <link href="styles/prism.css" rel="stylesheet" />
+  <script src="scripts/prism.js"></script>
   <script src="main.js"></script>
 </head>
 
@@ -16,10 +18,32 @@
 <!-- Page Container -->
 <main>
   <aside id="tree">
-
+    <ul id="myUL">
+     <li id="maindir"><span class="caret">Project Files</span>
+     <!--<ul class="nested">
+          <li>Water</li>
+          <li>Coffee</li>
+          <li><span class="caret">Tea</span>
+            <ul class="nested">
+              <li>Black Tea</li>
+              <li>White Tea</li>
+              <li><span class="caret">Green Tea</span>
+                <ul class="nested">
+                  <li>Sencha</li>
+                  <li>Gyokuro</li>
+                  <li>Matcha</li>
+                  <li>Pi Lo Chun</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>-->
+      </li>
+    </ul>
   </aside>
   <article id="source">
-    <pre><code>
+    <pre>
+      <code class="language-c">
 /*
  * Supplementary group IDs
  */
@@ -258,7 +282,9 @@ int in_egroup_p(kgid_t grp)
   return retval;
 }
 
-EXPORT_SYMBOL(in_egroup_p); </code>></pre>
+EXPORT_SYMBOL(in_egroup_p);
+        </code>
+      </pre>
 </article>
   <aside id="chat">
     <ol>
@@ -271,36 +297,6 @@ EXPORT_SYMBOL(in_egroup_p); </code>></pre>
       <li>test</li>
       <li>test</li>
       <li>test</li>
-      <li>test</li><li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li><li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li><li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li> <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li><li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li><li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li>
-      <li>test</li><li>test</li>
       <li>test</li>
       <li>test</li>
       <li>test</li>
@@ -314,15 +310,45 @@ EXPORT_SYMBOL(in_egroup_p); </code>></pre>
       <li>test</li>
       <li>test</li>
       <li>test</li>
-      <li>test</li><li>test</li>
       <li>test</li>
       <li>test</li>
       <li>test</li>
-      <li>test</li><li>test</li>
       <li>test</li>
       <li>test</li>
       <li>test</li>
-      <li>test</li><li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
+      <li>test</li>
       <li>test</li>
       <li>test</li>
       <li>test</li>
@@ -334,5 +360,6 @@ EXPORT_SYMBOL(in_egroup_p); </code>></pre>
     </div>
   </aside>
 </main>
+<script type="text/javascript" src="scripts/ui.js"></script>
 </body>
 </html> 

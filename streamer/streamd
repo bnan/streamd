@@ -60,7 +60,11 @@ def main(argv):
 
         repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
 
-    repo.create_remote('streamd-remote', 'git://127.0.0.1/' + r.text)
+    remote = 'git://127.0.0.1/' + r.text
+
+    repo.create_remote('streamd-remote', remote)
+
+    print('remote', remote)
 
     watch(repo)
 
