@@ -1,0 +1,92 @@
+body {
+  margin: 0;
+  font-family: monospace;
+}
+main{
+  display: flex; 
+  height: 95vh;
+}
+header{
+  background-color: #002b36;
+  color:white;
+  height: 5vh;
+}
+h1{
+  margin:0;
+}
+#tree{
+overflow-y: auto;
+flex: 1;
+background-color: #fdf6e3;
+}
+#source{
+  color:white;
+  overflow-y: auto;
+  flex: 3;
+  background-color: #272822;
+}
+#chat{
+  color: white;
+  flex: 1;
+  background-color: #586e75;
+  display: flex;
+  flex-direction: column;
+}
+#chat ol{
+overflow-y: auto;
+flex:10;
+}
+#chat #submit_msg{
+ background-color: black;
+ display: flex;
+ align-items: flex-end;
+ flex: 1;
+}
+#chat #submit_msg #msg_text{
+  width: 100%;
+}
+@media (max-width: 400px){
+  main{
+    display: block;
+  }
+}
+
+/*Tree View Files*/
+ul, #myUL {
+  list-style-type: none;
+}
+
+/* Remove margins and padding from the parent ul */
+#myUL {
+  margin: 0;
+  padding: 0;
+}
+
+/* Style the caret/arrow */
+.caret {
+  cursor: pointer; 
+  user-select: none; /* Prevent text selection */
+}
+
+/* Create the caret/arrow with a unicode, and style it */
+.caret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+/* Rotate the caret/arrow icon when clicked on (using JavaScript) */
+.caret-down::before {
+  transform: rotate(90deg); 
+}
+
+/* Hide the nested list */
+.nested {
+  display: none;
+}
+
+/* Show the nested list when the user clicks on the caret/arrow (with JavaScript) */
+.active {
+  display: block;
+}
