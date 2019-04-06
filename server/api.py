@@ -35,6 +35,7 @@ def routes(remote_id, thread):
         # There is no such repo you silly boy
         return jsonify(**{ 'error': True, 'message': 'Could not find repo' })
 
+
     # Verify if there are already a thread
     message_folder = f'{repo_dir}/{thread}'
     if not os.path.exists(message_folder):
@@ -47,6 +48,12 @@ def routes(remote_id, thread):
 
     with open(message_file,'w+') as f:
         f.write(json.dumps(payload))
+
+    # Commit changes to messages-branch
+    repo.git.checkout('streamd-comments')
+    repo.git.add('.')
+    repo.git.commit(m=f'add {username} message')
+    repo.git.checkout('master')
 
     return jsonify(**{ 'error': False, 'message': 'Message Stored' })
 
