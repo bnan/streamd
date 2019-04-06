@@ -30,6 +30,9 @@ def main(argv):
     directory = tempfile.mkdtemp(dir=REPO_DIR)
     repo = Repo.clone_from(url, directory, branch='master')
 
+    url = f'http://streamd.sh/watchd/{os.path.basename(os.path.normpath(directory))}'
+    print(url)
+
     while True:
         repo.git.pull('origin', 'master')
 
@@ -47,4 +50,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         exit(0)
 
-    m.join()
+    try:
+        m.join()
+    except KeyboardInterrupt:
+        exit(0)

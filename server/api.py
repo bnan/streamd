@@ -11,7 +11,7 @@ from pathlib import Path
 
 import flask
 import git
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template, url_for
 from flask_cors import CORS
 from git import Repo
 
@@ -21,6 +21,27 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
+
+@app.route('/', methods=['GET'])
+def index():
+    list_available = os.listdir(REPO_LOCAL_BASE);
+
+    context = [ {"code":x,"description":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} for x in list_available ]
+
+    return render_template('index.html', streams=context)
+
+@app.route('/stream/<stream_code>', methods=['GET'])
+def stream(stream_code):
+    urls = {"js":url_for('static', filename='scripts/ui.js'),
+            "prismcss":url_for('static', filename='styles/prism.css'),
+            "prismjs":url_for('static', filename='scripts/prism.js'),
+            "css":url_for('static', filename='styles/style.css'),
+            "main":url_for('static', filename='scripts/main.js'),
+            }
+
+    return render_template('stream.html', urls=urls)
+
+
 
 @app.route('/api/v1/streams', methods=['GET'])
 def list_available_streams():

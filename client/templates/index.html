@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>StreamD</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdn.rawgit.com/Chalarangelo/mini.css/v3.0.1/dist/mini-default.min.css">
+    </head>
+
+    <body>
+        <!-- Navbar -->
+        <header>
+            <a href="#" class="logo">streamd.sh</a>
+        </header>
+
+        <br></br>
+        <!-- Page Container -->
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-0 col-md-offset-2 col-lg-offset-4">
+                    <h2>To watch a code stream</h2>
+                    <pre>$ streamd-watch stream.sh/YLasdu </pre>
+                </div>
+            </div>
+            <br></br>
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-0 col-md-offset-2 col-lg-offset-4">
+                    <h2>Available Streams</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-0 col-md-offset-2 col-lg-offset-4">
+                    <div class="container">
+                        <div class="row">
+                            {% for stream in streams %}
+                            <div class="col-sm-6">
+                                <div class="card small">
+                                    <div class="section">
+                                        <h4>Code:</h4>
+                                        <p>{{ stream.code }}</p>
+                                    </div>
+                                    <div class="section">
+                                        <h4>Description:</h4>
+                                        <p style="white-space: nowrap;
+                                                  overflow: hidden;
+                                                  text-overflow: ellipsis;
+                                                  max-height: 10vh;">
+                                        {{ stream.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
