@@ -15,16 +15,16 @@ from git import Repo
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-app = Flask(__name__, static_url_path='')
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+app = Flask(__name__, static_url_path='/')
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
-DIRECTORY = tempfile.mkdtemp()
-print(DIRECTORY)
 
 def main(argv):
     assert len(argv) >= 2
     url = argv[1]
 
+    DIRECTORY = tempfile.mkdtemp()
+    print(DIRECTORY)
     repo = Repo.clone_from(url, DIRECTORY, branch='master')
 
     try:
@@ -34,10 +34,11 @@ def main(argv):
     except KeyboardInterrupt:
         return
 
+
 @app.route('/<path:path>')
 def serve(path):
     print(path)
-    return app.send_static_file(path)
+    return send_from_directory('/', path)
 
 
 if __name__ == '__main__':
