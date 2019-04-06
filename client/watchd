@@ -1,46 +1,50 @@
 #!/usr/bin/env python3
 
 import os
-import sys
-import subprocess
-import tempfile
-import time
 import random
+import subprocess
+import sys
+import tempfile
 import threading
+import time
 
 import git
 import requests
-from git import Repo
-
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+from git import Repo
 
-app = Flask(__name__, static_url_path='/')
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+REPO_DIR = os.path.join(tempfile.gettempdir(), 'watchd')
+os.makedirs(REPO_DIR, exist_ok=True)
+
+
+app = Flask(__name__, static_folder=REPO_DIR)
+cors = CORS(app, resources={'/*': {'origins': '*'}})
 
 
 def main(argv):
     assert len(argv) >= 2
     url = argv[1]
 
-    DIRECTORY = tempfile.mkdtemp()
-    print(DIRECTORY)
-    repo = Repo.clone_from(url, DIRECTORY, branch='master')
+    directory = tempfile.mkdtemp(dir=REPO_DIR)
+    repo = Repo.clone_from(url, directory, branch='master')
 
-    try:
-        while True:
-            repo.git.pull('origin', 'master')
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        return
+    while True:
+        repo.git.pull('origin', 'master')
 
-
-@app.route('/<path:path>')
-def serve(path):
-    print(path)
-    return send_from_directory('/', path)
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':
-    threading.Thread(target=main, args=(sys.argv,)).start()
-    app.run(host='0.0.0.0', port=1338, debug=True)
+    m = threading.Thread(target=main, args=(sys.argv,))
+    m.start()
+
+    try:
+        app.run(host='127.0.0.1', port=1338)
+    except OSError:
+        pass
+    except KeyboardInterrupt:
+        exit(0)
+
+    m.join()
