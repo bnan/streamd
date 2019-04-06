@@ -1,0 +1,49 @@
+body {
+  margin: 0;
+  font-family: monospace;
+}
+main{
+  display: flex; 
+  height: 95vh;
+}
+header{
+  background-color: red;
+  height: 5vh;
+}
+h1{
+  margin:0;
+}
+#tree{
+overflow-y: auto;
+flex: 1;
+background-color: yellow;
+}
+#source{
+  overflow-y: auto;
+  flex: 3;
+  background-color: grey;
+}
+#chat{
+  flex: 1;
+  background-color: green;
+  display: flex;
+  flex-direction: column;
+}
+#chat ol{
+overflow-y: auto;
+flex:9;
+}
+#chat #submit_msg{
+ background-color: black;
+ display: flex;
+ align-items: flex-end;
+ flex: 1;
+}
+#chat #submit_msg #msg_text{
+  width: 100%;
+}
+@media (max-width: 400px){
+  main{
+    display: block;
+  }
+}

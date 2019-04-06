@@ -1,17 +1,21 @@
+import json
 import os
+import os.path
 import random
 import string
 import subprocess
 import tempfile
+import time
 
 from pathlib import Path
 
 import flask
 import git
 from git import Repo
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+from git import Repo
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -20,21 +24,51 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
 
-@app.route('/api/v1/routes/<lat>/<lng>/', methods=['GET'])
-def routes(lat, lng):
+# Also send thread in URL so that I can dump json from POST and don't
+# have to parse it to know which thread is and then remove that field
+# so that it won't be stored redundantly
+@app.route('/api/v1/comments/<remote_id>/<thread>', methods=['POST'])
+def routes(remote_id, thread):
+    homedir = os.path.expanduser('~')
+    repo_dir = f'{homedir}/streamd/{remote_id}'
+
+    # Sanity checks to ensure correctness
     try:
-        results = [
-            { 'lat': -8.6721462, 'lng': 41.165162 },
-            { 'lat': -8.684325, 'lng': 41.1735278 },
-            { 'lat': -8.6882191, 'lng': 41.1734336 },
-            { 'lat': -8.6131861, 'lng': 41.1718621 }
-        ]
+        payload = request.get_json();
+    except KeyError:
+        # You must provide those form parameters
+        return jsonify(**{ 'error': True, 'message': 'Mal-formed message' })
 
-        return jsonify(**{'error': False, 'message': f'Successfully computed routes for ({lat}, {lng})', 'results': results })
-    except Exception as e:
-        raise e
-        return jsonify(**{ 'error': True, 'message': str(e), 'results': [] })
+    username = payload['username']
+    text = payload['text']
 
+    # Verify if repo already exists
+    repo = Repo(repo_dir)
+    if repo.bare:
+        # There is no such repo you silly boy
+        return jsonify(**{ 'error': True, 'message': 'Could not find repo' })
+
+
+    # Verify if there are already a thread
+    message_folder = f'{repo_dir}/{thread}'
+    if not os.path.exists(message_folder):
+        os.makedirs(message_folder)
+
+    # Timestamp new messages to provide order in files
+    timestamp = time.time()
+
+    message_file = f'{message_folder}/{timestamp}'
+
+    with open(message_file,'w+') as f:
+        f.write(json.dumps(payload))
+
+    # Commit changes to messages-branch
+    repo.git.checkout('streamd-comments')
+    repo.git.add('.')
+    repo.git.commit(m=f'add {username} message')
+    repo.git.checkout('master')
+
+    return jsonify(**{ 'error': False, 'message': 'Message Stored' })
 
 @app.route('/new/repo', methods=['POST'])
 def new_repository():
@@ -69,4 +103,4 @@ def new_repository():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=1337)
+    app.run(host='0.0.0.0', port=1337, debug=True)
