@@ -11,7 +11,7 @@ from pathlib import Path
 
 import flask
 import git
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, url_for
 from flask_cors import CORS
 from git import Repo
 
@@ -29,6 +29,16 @@ def index():
     context = [ {"code":x,"description":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} for x in list_available ]
 
     return render_template('index.html', streams=context)
+
+@app.route('/stream/<stream_code>', methods=['GET'])
+def stream(stream_code):
+    ui = {"js":url_for('static', filename='scripts/ui.js')}
+    prismcss = {"prismcss":url_for('static', filename='styles/prism.css')}
+    prismjs = {"prismjs":url_for('static', filename='scripts/prism.js')}
+    css = {"css":url_for('static', filename='styles/style.css')}
+    return render_template('stream.html', ui=ui, prismcss=prismcss, prismjs=prismjs,css=css)
+
+
 
 @app.route('/api/v1/streams', methods=['GET'])
 def list_available_streams():
