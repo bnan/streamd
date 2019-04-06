@@ -1,66 +1,68 @@
 
 var toggler = document.getElementsByClassName("caret");
 var i;
+var maindir= document.getElementById("maindir");
 
-var tree = 
-[
-  {
-    "name": "MainFolder",
-    "children": [
-      {
-        "name": "hasChild",
-        "children": [
-          {
-            "name": "leaf",
-            "children": []
-          }
-        ]
-      },
-      {
-        "name": "hasChild2",
-        "children": [
-          {
-            "name": "leaf2",
-            "children": []
-          },
-          {
-            "name": "leaf3",
-            "children": []
-          }
-        ]
-      },
+
+
+var data = {
+    "name": "root",
+    "contents": [
+        {
+            "name": "A",
+            "contents": [
+                {
+                    "name": "fileA1",
+                    "contents": []
+                }
+            ]
+        },
+        {
+            "name": "B",
+            "contents": [
+                {
+                    "name": "dirB1",
+                    "contents": [
+                        {
+                            "name": "fileBB1",
+                            "contents": []
+                        }
+                    ]
+                },
+                {
+                    "name": "fileB1",
+                    "contents": []
+                }
+            ]
+        }
     ]
-  }
-];
+};
+traverse(data);
+function traverse(obj){
+	
+  for (let k in obj) {
+    if (obj[k] && typeof obj[k] === 'object') {
+      traverse(obj[k])
+    } else {
+    	if (obj.contents.length!=0) {
+    		var ul= document.createElement("ul");
+    		//ul.setAttribute('class','nested active');
+    		ul.innerHTML= obj[k];
+    		maindir.appendChild(ul);
 
-printTree(tree, '/');
+    		//console.log(obj[k]);
+    	}
+    	else{
+    		var li= document.createElement("li");
 
-function printTree(tree, slug){
-  var maindir = document.getElementById('maindir');
-  var ul = document.createElement("ul");
-  var li = document.createElement("li");
-  var span = document.createElement("span");
-  slug = slug || '/';
-  
-  for(var i = 0; i < tree.length; i++) {
-    
+    		li.innerHTML= obj[k];
+    		console.log(obj[k]);
+    		//ul.appendChild(li);
 
-    ul.setAttribute('class','nested');
-	li.innerHTML=tree[i].name;
-	ul.appendChild(li);
-	maindir.appendChild(ul);
-
-    console.log(slug+tree[i].name + '/');
-    if(tree[i].children.length){
-      
-      	
-      console.log(tree[i].children)
-      printTree(tree[i].children, slug+tree[i].name + '/')
-    	
+    	}
     }
   }
 }
-
 for (i = 0; i < toggler.length; i++) {
   	toggler[i].addEventListener("click", function() {
     	this.parentElement.querySelector(".nested").classList.toggle("active");
