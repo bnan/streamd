@@ -22,6 +22,13 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
+@app.route('/api/v1/streams', methods=['GET'])
+def list_available_streams():
+    list_available = os.listdir(REPO_LOCAL_BASE);
+    list_details = [{"name":"demo","text":"xxxx"} for i in enumerate(list_available)]
+    d = dict(zip(list_available, list_details))
+
+    return jsonify(d)
 
 # Also send thread in URL so that I can dump json from POST and don't
 # have to parse it to know which thread is and then remove that field
