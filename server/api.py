@@ -5,6 +5,7 @@ import random
 import string
 import subprocess
 import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -26,9 +27,8 @@ REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 # have to parse it to know which thread is and then remove that field
 # so that it won't be stored redundantly
 @app.route('/api/v1/comments/<remote_id>/<thread>', methods=['POST'])
-def routes(remote_id, thread):
-    homedir = os.path.expanduser('~')
-    repo_dir = f'{homedir}/streamd/{remote_id}'
+def add_comment(remote_id, thread):
+    repo_dir = f'{REPO_LOCAL_BASE}/{remote_id}'
 
     # Sanity checks to ensure correctness
     try:
@@ -61,11 +61,10 @@ def routes(remote_id, thread):
         f.write(json.dumps(payload))
 
     # Commit changes to messages-branch
-    branch_name = repo.active_branch.name
-    if branch_name != 'streamd-comments':
-        repo.git.checkout('streamd-comments')
-    repo.git.add('.')
+    repo.git.checkout('streamd-comments')
+    repo.git.add(message_file)
     repo.git.commit(m=f'add {username} message')
+    repo.git.push('origin', 'streamd-comments')
 
     return jsonify(**{ 'error': False, 'message': 'Message Stored' })
 
@@ -105,8 +104,24 @@ def new_repository():
     repo.git.checkout(b='master')
     repo.git.checkout(orphan='streamd-comments')
 
+    init_file = os.path.join(repo.working_tree_dir, 'init')
+    open(init_file, 'w').close()
+    repo.index.add([init_file])
+    repo.index.commit("add init file")
+    repo.git.push('origin', 'streamd-comments')
+
+
+    #mythread = MyThread()
+    #mythread.start()
+    #return 'as'
     return repo_id
 
+
+#class Publisher(threading.Thread):
+#    def run(self):
+#        print("{} started!".format(self.getName()))              # "Thread-x started!"
+#        time.sleep(1)                                      # Pretend to work for a second
+#        print("{} finished!".format(self.getName()))             # "Thread-x finished!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=1337, debug=True)
