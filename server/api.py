@@ -35,11 +35,14 @@ def index():
 
 @app.route('/stream/<stream_code>', methods=['GET'])
 def stream(stream_code):
-    ui = {"js":url_for('static', filename='scripts/ui.js')}
-    prismcss = {"prismcss":url_for('static', filename='styles/prism.css')}
-    prismjs = {"prismjs":url_for('static', filename='scripts/prism.js')}
-    css = {"css":url_for('static', filename='styles/style.css')}
-    return render_template('stream.html', ui=ui, prismcss=prismcss, prismjs=prismjs,css=css)
+    urls = {"js":url_for('static', filename='scripts/ui.js'),
+            "prismcss":url_for('static', filename='styles/prism.css'),
+            "prismjs":url_for('static', filename='scripts/prism.js'),
+            "css":url_for('static', filename='styles/style.css'),
+            "main":url_for('static', filename='scripts/main.js'),
+            }
+
+    return render_template('stream.html', urls=urls)
 
 
 
