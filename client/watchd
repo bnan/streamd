@@ -15,11 +15,12 @@ from flask_cors import CORS
 from git import Repo
 
 
-REPO_DIR = os.path.join(tempfile.gettempdir(), 'watchd')
-os.makedirs(REPO_DIR, exist_ok=True)
+BASE_DIR = os.path.join(tempfile.gettempdir(), 'watchd')
+os.makedirs(BASE_DIR, exist_ok=True)
+REPO_DIR = tempfile.mkdtemp(dir=BASE_DIR)
 
 
-app = Flask(__name__, static_folder=REPO_DIR)
+app = Flask(__name__, static_folder=BASE_DIR)
 cors = CORS(app, resources={'/*': {'origins': '*'}})
 
 
@@ -27,16 +28,23 @@ def main(argv):
     assert len(argv) >= 2
     url = argv[1]
 
-    directory = tempfile.mkdtemp(dir=REPO_DIR)
-    repo = Repo.clone_from(url, directory, branch='master')
+    repo = Repo.clone_from(url, REPO_DIR, branch='master')
 
-    url = f'http://streamd.sh/watchd/{os.path.basename(os.path.normpath(directory))}'
-    print(url)
+    print(f'http://127.0.0.1/stream/{os.path.basename(os.path.normpath(REPO_DIR))}')
 
     while True:
         repo.git.pull('origin', 'master')
 
         time.sleep(0.1)
+
+
+@app.route('/', methods=['GET'])
+def index():
+    repo = Repo(REPO_DIR)
+
+    files = repo.git.ls_files().split()
+
+    return jsonify(files=files)
 
 
 if __name__ == '__main__':
