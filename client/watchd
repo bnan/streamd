@@ -30,7 +30,7 @@ def main(argv):
     directory = tempfile.mkdtemp(dir=REPO_DIR)
     repo = Repo.clone_from(url, directory, branch='master')
 
-    url = f'http://streamd.sh/watchd/{os.path.basename(os.path.normpath(directory))}'
+    url = f'http://127.0.0.1/watchd/{os.path.basename(os.path.normpath(directory))}'
     print(url)
 
     while True:
