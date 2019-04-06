@@ -63,10 +63,11 @@ def routes(remote_id, thread):
         f.write(json.dumps(payload))
 
     # Commit changes to messages-branch
-    repo.git.checkout('streamd-comments')
+    branch_name = repo.active_branch.name
+    if branch_name != 'streamd-comments':
+        repo.git.checkout('streamd-comments')
     repo.git.add('.')
     repo.git.commit(m=f'add {username} message')
-    repo.git.checkout('master')
 
     return jsonify(**{ 'error': False, 'message': 'Message Stored' })
 
@@ -98,6 +99,9 @@ def new_repository():
         Repo.init(os.path.join(repo_path))
 
     open(os.path.join(repo_path, '.git', 'git-daemon-export-ok'), 'w').close()
+
+    repo = Repo(repo_path)
+    repo.git.checkout(orphan='streamd-comments')
 
     return repo_id
 
