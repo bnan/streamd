@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import os
+import random
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+
+import git
+import requests
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+from git import Repo
+
+
+REPO_DIR = os.path.join(tempfile.gettempdir(), 'watchd')
+os.makedirs(REPO_DIR, exist_ok=True)
+
+
+app = Flask(__name__, static_folder=REPO_DIR)
+cors = CORS(app, resources={'/*': {'origins': '*'}})
+
+
+def main(argv):
+    assert len(argv) >= 2
+    url = argv[1]
+
+    directory = tempfile.mkdtemp(dir=REPO_DIR)
+    repo = Repo.clone_from(url, directory, branch='master')
+
+    url = f'http://streamd.sh/watchd/{os.path.basename(os.path.normpath(directory))}'
+    print(url)
+
+    while True:
+        repo.git.pull('origin', 'master')
+
+        time.sleep(0.1)
+
+
+if __name__ == '__main__':
+    m = threading.Thread(target=main, args=(sys.argv,))
+    m.start()
+
+    try:
+        app.run(host='127.0.0.1', port=1338)
+    except OSError:
+        pass
+    except KeyboardInterrupt:
+        exit(0)
+
+    try:
+        m.join()
+    except KeyboardInterrupt:
+        exit(0)
