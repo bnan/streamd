@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import subprocess
+import tempfile
+
+import git
+import requests
+from git import Repo
+
+
+def main(argv):
+    assert len(argv) >= 2
+
+    repo_path = argv[1]
+
+    try:
+        # try to interpret argv[1] as a git repo
+        repo = Repo(repo_path)
+
+        # bundle it
+        h,bundle = tempfile.mkstemp(suffix='.bundle')
+
+        subprocess.run(['git', 'bundle', 'create', bundle, 'master'],
+                       cwd=repo_path)
+
+        # issue the creation of the bundle
+        with open(bundle,'rb') as bundle_f:
+            r = requests.post('http://127.0.0.1:1337/new/repo',
+                              files={'bundle': bundle_f})
+
+        assert r.status_code == 200
+
+        # clean up
+        os.remove(bundle)
+    except (git.exc.NoSuchPathError, git.exc.InvalidGitRepositoryError):
+        # argv[1] is not a git repo, thus create one
+        r = requests.post('http://127.0.0.1:1337/new/repo')
+
+        assert r.status_code == 200
+
+        repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+
+    repo.create_remote('streamd-remote', 'git://127.0.0.1/' + r.text)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
