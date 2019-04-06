@@ -1,0 +1,4 @@
+gitpython
+requests
+Flask
+Flask-Cors

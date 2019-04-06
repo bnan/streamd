@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import subprocess
+import tempfile
+import time
+import random
+import threading
+
+import git
+import requests
+from git import Repo
+
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
+
+app = Flask(__name__, static_url_path='')
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+DIRECTORY = tempfile.mkdtemp()
+print(DIRECTORY)
+
+def main(argv):
+    assert len(argv) >= 2
+    url = argv[1]
+
+    repo = Repo.clone_from(url, DIRECTORY, branch='master')
+
+    try:
+        while True:
+            repo.git.pull('origin', 'master')
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        return
+
+@app.route('/<path:path>')
+def serve(path):
+    print(path)
+    return app.send_static_file(path)
+
+
+if __name__ == '__main__':
+    threading.Thread(target=main, args=(sys.argv,)).start()
+    app.run(host='0.0.0.0', port=1338, debug=True)
