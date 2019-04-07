@@ -42,6 +42,25 @@ async function send_comment(remote_id, thread, username, comment){
     }
 }
 
+async function commits(repoDir) {
+  try {
+    let response = await fetch(`${STREAM_URL}/commits/${repoDir}`)
+    let json = await response.json()
+    return json
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function commit(repoDir, commit) {
+  try {
+    let response = await fetch(`${STREAM_URL}/commit/${repoDir}/${commit}`)
+    console.log(response)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function list(repoDir) {
   try {
     let response = await fetch(`${STREAM_URL}/files/${repoDir}`)
@@ -64,10 +83,13 @@ async function load(filename) {
 }
 
 let syncing = true
+let commitsList = {}
+let repoDir = ''
+
 
 async function main() {
   let pieces = window.location.href.split('/')
-  const repoDir = pieces[pieces.length-1]
+  repoDir = pieces[pieces.length-1]
   //const extension = 'python'
 
   const elCode = document.querySelector('#source pre code')
@@ -92,7 +114,7 @@ async function main() {
       updateChat(elChat, repoId)
 
       let filenames = await list(repoDir)
-      console.log(filenames)
+      commitsList = await commits(repoDir)
       traverse(filenames, elTree)
     }
   }, 1000)
