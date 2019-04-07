@@ -22,20 +22,34 @@ async function load(filename) {
   }
 }
 
+let syncing = true
+
 async function main() {
   let pieces = window.location.href.split('/')
   const repoDir = pieces[pieces.length-1]
   //const extension = 'python'
 
   const el = document.querySelector('#source pre code')
-  //el.classList.add(`language-${extension}`)
+
+  el.onselectstart = function() {
+    syncing = false
+  }
+
+  el.onmouseup = function() {
+    if (!syncing) {
+      document.execCommand('copy')
+      syncing = true
+    }
+  }
 
   let filenames = await list()
   console.log('filenames', filenames)
 
   setInterval(async () => {
-    let file = await load(`${repoDir}/STREAMD.md`)
-    el.innerHTML = file
+    if (syncing) {
+      let file = await load(`${repoDir}/STREAMD.md`)
+      el.innerHTML = file
+    }
   }, 1000)
 }
 

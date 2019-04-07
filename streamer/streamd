@@ -15,7 +15,7 @@ STREAMD_MD = 'STREAMD.md'
 
 
 def watch(repo):
-    repo.git.checkout(b='master')
+    repo.git.checkout('master')
 
     try:
         while True:
