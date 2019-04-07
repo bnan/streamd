@@ -46,8 +46,7 @@ def stream(stream_code):
         "css":url_for('static', filename='styles/style.css'),
         "main":url_for('static', filename='scripts/main.js'),
         "stream_code": stream_code,
-        "id": stream_code
-        
+        "id": stream_code,
     }
 
     return render_template('stream.html', context=context)
@@ -62,6 +61,8 @@ def list_available_streams():
 
     return jsonify(d)
 
+
+comments_db = {}
 # Also send thread in URL so that I can dump json from POST and don't
 # have to parse it to know which thread is and then remove that field
 # so that it won't be stored redundantly
@@ -77,7 +78,6 @@ def add_comment(remote_id, thread):
         return jsonify(**{ 'error': True, 'message': 'Mal-formed message' })
 
     username = payload['username']
-    text = payload['text']
 
     # Verify if repo already exists
     repo = Repo(repo_dir)
@@ -105,7 +105,20 @@ def add_comment(remote_id, thread):
     repo.git.commit(m=f'add {username} message')
     repo.git.push('origin', 'streamd-comments')
 
+    # in-memory comment storage
+    if remote_id not in comments_db:
+        comments_db[remote_id] = {}
+    if thread not in comments_db[remote_id]:
+        comments_db[remote_id][thread] = {}
+    comments_db[remote_id][thread][timestamp] = payload
+
     return jsonify(**{ 'error': False, 'message': 'Message Stored' })
+
+
+@app.route('/api/v1/comments/<repo_id>')
+def get_comments(repo_id):
+    return comments_db[repo_id]
+
 
 @app.route('/new/repo', methods=['POST'])
 def new_repository():

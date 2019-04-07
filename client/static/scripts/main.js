@@ -2,6 +2,30 @@ const API_URL = 'http://0.0.0.0:1337/api/v1'
 const STREAM_URL = 'http://0.0.0.0:1338'
 const WATCHD_URL = 'http://0.0.0.0:1338/watchd'
 
+async function send_comment(remote_id, thread, username, comment){
+    let data = JSON.stringify({
+        username:username,
+        text:comment
+    })
+
+
+    const otherParams={
+        headers:{
+            "content-type":"application/json; charset=UTF-8"
+        },
+        body:data,
+        method:"POST"
+    };
+
+    try {
+        let response = await fetch(`${API_URL}/comments/${remote_id}/${thread}`, otherParams)
+        let json = await response.json()
+        console.log(json)
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 async function list(repoDir) {
   try {
     let response = await fetch(`${STREAM_URL}/files/${repoDir}`)

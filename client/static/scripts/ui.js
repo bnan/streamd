@@ -63,3 +63,36 @@ function traverse(obj, ul){
     }
 
 }
+
+function sendUsername(username_new) {
+    document.getElementById("modal-control").checked = false;
+}
+
+function sendText(remote_id) {
+    console.log("send text")
+    let username =  document.getElementById("username_text").value;
+    console.log(username)
+    if( username == ""){
+        console.log("no name")
+        document.getElementById("modal-control").checked = true;
+        return;
+    }
+
+    thread = document.getElementById("msg_commit").value;
+    console.log(thread)
+
+    text = document.getElementById("msg_text").value;
+    console.log(text)
+
+    send_comment(remote_id, thread, username, text)
+}
+
+function changeCommit(e) {
+    document.getElementById("msg_commit").value = e;
+}
+
+var slider = document.getElementById("myRange");
+
+slider.oninput = function() {
+  console.log(this.value);
+}
