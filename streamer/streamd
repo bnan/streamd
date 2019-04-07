@@ -25,7 +25,7 @@ def watch(repo):
                 repo.git.commit(m='streamd: update')
                 repo.git.push('streamd-remote', 'master')
 
-            time.sleep(0.1)  # 100ms
+            time.sleep(0.5)  # 100ms
     except KeyboardInterrupt:
         return
 

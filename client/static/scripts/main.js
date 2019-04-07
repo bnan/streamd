@@ -143,6 +143,10 @@ async function main() {
 
     currentFile = 'STREAMD.md'
 
+    await sync(repoDir)
+
+    
+
     setInterval(async () => {
         if (syncing) {
             updateChat(elChat, repoDir)

@@ -117,9 +117,12 @@ def add_comment(remote_id, thread):
 
 @app.route('/api/v1/comments/<repo_id>')
 def get_comments(repo_id):
-    ret = comments_db[repo_id]
-    comments_db.clear();
-    return jsonify(ret)
+    try:
+        ret = comments_db[repo_id]
+        comments_db.clear();
+        return jsonify(ret)
+    except:
+        return ''
 
 
 @app.route('/new/repo', methods=['POST'])
