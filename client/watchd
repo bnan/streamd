@@ -19,7 +19,6 @@ from git import Repo
 
 
 BASE_DIR = os.path.join(tempfile.gettempdir(), 'watchd')
-print('BASE_DIR', BASE_DIR)
 os.makedirs(BASE_DIR, exist_ok=True)
 REPO_DIR = None
 
@@ -52,12 +51,23 @@ def main(argv):
         subprocess.run(["xdg-open", link])
     elif platform == "darwin":
         subprocess.run(["open", link])
-        pass
 
     while True:
         repo.git.pull('origin', 'master')
         time.sleep(0.1)
 
+def mysplit(s):
+    try:
+        return s[:s.index('/')], s[s.index('/')+1:]
+    except:
+        return s, []
+        
+def flat2nested(s):
+    pieces = mysplit(s)
+    if pieces[1]:
+        return {'name': pieces[0], 'contents': [flat2nested(pieces[1])]}
+    else:
+        return {'name': pieces[0], 'contents': []}
 
 @app.route('/', methods=['GET'])
 def index():
@@ -67,7 +77,12 @@ def index():
 
     files = repo.git.ls_files().split()
 
-    return jsonify(files=files)
+    d = {
+        'name': 'Source',
+        'contents': [flat2nested(f) for f in files]
+    }
+
+    return jsonify(d)
 
 
 if __name__ == '__main__':
@@ -75,7 +90,7 @@ if __name__ == '__main__':
     m.start()
 
     try:
-        app.run(host=CLIENT_HOST, port=CLIENT_PORT, debug=False)
+        app.run(host=CLIENT_HOST, port=CLIENT_PORT, debug=True)
     except OSError:
         pass
     except KeyboardInterrupt:
