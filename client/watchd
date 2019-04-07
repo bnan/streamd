@@ -20,7 +20,8 @@ from git import Repo
 
 BASE_DIR = os.path.join(tempfile.gettempdir(), 'watchd')
 os.makedirs(BASE_DIR, exist_ok=True)
-REPO_DIR = None
+
+HOLD_FILE = '__STREAMD_HOLD__'
 
 
 app = Flask(__name__, static_folder=BASE_DIR)
@@ -36,16 +37,15 @@ CLIENT_PORT = 1338
 
 def main(argv):
     assert len(argv) == 2
-    global REPO_DIR
 
     url = argv[1]
-    REPO_DIR = os.path.join(BASE_DIR, url.split('/')[-1])
+    repo_dir = os.path.join(BASE_DIR, url.split('/')[-1])
 
-    shutil.rmtree(REPO_DIR, ignore_errors=True)
-    repo = Repo.clone_from(url, REPO_DIR, branch='master')
+    shutil.rmtree(repo_dir, ignore_errors=True)
+    repo = Repo.clone_from(url, repo_dir)
 
-    link = f'http://{SERVER_HOST}:{SERVER_PORT}/stream/{os.path.basename(os.path.normpath(REPO_DIR))}'
-    print(f'Opening {link}...')
+    link = f'http://{SERVER_HOST}:{SERVER_PORT}/stream/{os.path.basename(os.path.normpath(repo_dir))}'
+    print(f'Opening {link}')
 
     if platform == "linux" or platform == "linux2":
         subprocess.run(["xdg-open", link])
@@ -53,7 +53,9 @@ def main(argv):
         subprocess.run(["open", link])
 
     while True:
-        repo.git.pull('origin', 'master')
+        if not os.path.isfile(os.path.join(repo.working_tree_dir, HOLD_FILE)):
+            repo.git.pull('origin', 'master:master')
+
         time.sleep(0.1)
 
 def mysplit(s):
@@ -61,7 +63,7 @@ def mysplit(s):
         return s[:s.index('/')], s[s.index('/')+1:]
     except:
         return s, []
-        
+
 def flat2nested(s):
     pieces = mysplit(s)
     if pieces[1]:
@@ -69,13 +71,12 @@ def flat2nested(s):
     else:
         return {'name': pieces[0], 'contents': []}
 
-@app.route('/', methods=['GET'])
-def index():
-    assert REPO_DIR is not None
 
-    repo = Repo(REPO_DIR)
+@app.route('/files/<repo_id>', methods=['GET'])
+def files(repo_id):
+    repo = Repo(os.path.join(BASE_DIR, repo_id))
 
-    files = repo.git.ls_files().split()
+    files = repo.git.ls_tree('-r', '--name-only', 'master').split()
 
     d = {
         'name': 'Source',
@@ -83,6 +84,35 @@ def index():
     }
 
     return jsonify(d)
+
+
+@app.route('/commits/<repo_id>', methods=['GET'])
+def commits(repo_id):
+    repo = Repo(os.path.join(BASE_DIR, repo_id))
+
+    return jsonify(commits=repo.git.log('master', '--reverse', format='%H').split())
+
+
+@app.route('/commit/<repo_id>/<commit_id>')
+def commit(repo_id, commit_id):
+    repo = Repo(os.path.join(BASE_DIR, repo_id))
+
+    # interrupt pulls
+    open(os.path.join(repo.working_tree_dir, HOLD_FILE), 'w').close()
+
+    repo.git.checkout(commit_id)
+
+    return 'OK'
+
+
+@app.route('/commit/<repo_id>')
+def pull_continue(repo_id):
+    try:
+        os.remove(os.path.join(BASE_DIR, repo_id, HOLD_FILE))
+    except FileNotFoundError:
+        pass
+
+    return 'OK'
 
 
 if __name__ == '__main__':

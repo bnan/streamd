@@ -2,9 +2,9 @@ const API_URL = 'http://0.0.0.0:1337/api/v1'
 const STREAM_URL = 'http://0.0.0.0:1338'
 const WATCHD_URL = 'http://0.0.0.0:1338/watchd'
 
-async function list() {
+async function list(repoDir) {
   try {
-    let response = await fetch(`${STREAM_URL}`)
+    let response = await fetch(`${STREAM_URL}/files/${repoDir}`)
     let json = await response.json()
     return json
   } catch (error) {
@@ -44,7 +44,8 @@ async function main() {
 
   setInterval(async () => {
     if (syncing) {
-      let filenames = await list()
+      let filenames = await list(repoDir)
+      console.log(filenames)
       traverse(filenames, elTree)
 
       let file = await load(`${repoDir}/STREAMD.md`)
