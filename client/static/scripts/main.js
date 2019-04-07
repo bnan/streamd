@@ -107,6 +107,7 @@ async function main() {
       console.log('currentFile', currentFile)
       let file = await load(`${repoDir}/${currentFile}`)
       filenames = await list(repoDir)
+      console.log('filenames', filenames)
       commitsList = await commits(repoDir)
       traverse(filenames, elTree)
     }
