@@ -115,6 +115,13 @@ def commit(repo_id, commit_id):
 
 @app.route('/commit/<repo_id>')
 def pull_continue(repo_id):
+    repo = Repo(os.path.join(BASE_DIR, repo_id))
+
+    try:
+        repo.git.checkout('master')
+    except git.exc.GitCommandError:
+        pass
+
     try:
         os.remove(os.path.join(BASE_DIR, repo_id, HOLD_FILE))
     except FileNotFoundError:
