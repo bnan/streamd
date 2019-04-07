@@ -85,7 +85,7 @@ def main(argv):
     except git.exc.GitCommandError:  # file was already added
         pass
 
-    print(f'Streaming on {remote}...')
+    print(f'Streaming on {remote}')
     watch(repo)
 
 
