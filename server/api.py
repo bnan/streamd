@@ -44,6 +44,8 @@ def stream(stream_code):
         "css":url_for('static', filename='styles/style.css'),
         "main":url_for('static', filename='scripts/main.js'),
         "stream_code": stream_code,
+        "id": stream_code
+        
     }
 
     return render_template('stream.html', context=context)

@@ -9,5 +9,8 @@ pre{
     height:80vh;
     overflow-y:auto;
 }
+.logo{
+	cursor: default;
+}
 
 
