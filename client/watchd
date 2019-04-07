@@ -48,11 +48,6 @@ def main(argv):
     link = f'http://{SERVER_HOST}:{SERVER_PORT}/stream/{os.path.basename(os.path.normpath(repo_dir))}'
     print(f'Opening {link}')
 
-    if platform == "linux" or platform == "linux2":
-        subprocess.run(["xdg-open", link])
-    elif platform == "darwin":
-        subprocess.run(["open", link])
-
     while True:
         if not os.path.isfile(os.path.join(repo.working_tree_dir, HOLD_FILE)):
             try:
