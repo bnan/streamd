@@ -69,6 +69,7 @@ async function load(filename) {
 let syncing = true
 let commitsList = {}
 let repoDir = ''
+let currentFile = ''
 
 
 async function main() {
@@ -89,10 +90,12 @@ async function main() {
 
   const elTree = document.querySelector('#maindir')
 
-  let file = await load(`${repoDir}/STREAMD.md`)
+  currentFile = 'STREAMD.md'
 
   setInterval(async () => {
     if (syncing) {
+      console.log('currentFile', currentFile)
+      let file = await load(`${repoDir}/${currentFile}`)
       let filenames = await list(repoDir)
       commitsList = await commits(repoDir)
       traverse(filenames, elTree)

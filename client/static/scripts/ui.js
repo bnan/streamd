@@ -50,6 +50,7 @@ function traverse(obj, ul){
         let pieces = window.location.href.split('/')
         let repoDir = pieces[pieces.length-1]
         await load(`${repoDir}/${e.target.textContent}`)
+        currentFile = e.target.textContent
       })
     }
     ul.innerHTML = ''
