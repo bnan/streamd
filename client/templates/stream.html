@@ -11,7 +11,7 @@
 
     <body>
         <header>
-            <a class="logo">streamd.sh/<small>{{ context.id }}</small></a>
+            <a class="logo">streamd.sh/<small id="repoId">{{ context.id }}</small></a>
         </header>
 
         <main>
@@ -46,7 +46,7 @@
                     <div class="row">
                         <div class="col-sm">
                             <aside id="chat">
-                                <ul>
+                                <ul id="ul-chat">
                                     <li>
                                         <h5>ludeed @ <input type="button" id="commit-text" 
                                                                           onClick="changeCommit(this.value)" value="AL51jc"></h5>
@@ -57,7 +57,7 @@
                                                                           onClick="changeCommit(this.value)" value="AL51jc"></h5>
                                         <p>isto não faz sentido nenhum. não brinquem comigo deficientes</p>
                                     </li>
-                                    </ol>
+                                </ul>
                         </div>
                     </div>
                     <div id="submit_msg" class="row">

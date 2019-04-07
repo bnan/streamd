@@ -2,6 +2,22 @@ const API_URL = 'http://0.0.0.0:1337/api/v1'
 const STREAM_URL = 'http://0.0.0.0:1338'
 const WATCHD_URL = 'http://0.0.0.0:1338/watchd'
 
+async function updateChat(chatEl, repo_id){
+    try {
+        let response = await fetch(`${API_URL}/comments/${repo_id}`)
+        let json = await response.json()
+        console.log("PILLAAAAAAAAAAAA")
+        console.log(json)
+
+        for( elem in json ){
+            console.log(elem)
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 async function send_comment(remote_id, thread, username, comment){
     let data = JSON.stringify({
         username:username,
@@ -69,8 +85,12 @@ async function main() {
 
   let file = await load(`${repoDir}/STREAMD.md`)
 
+  const elChat = document.querySelector('#ul-chat')
+
   setInterval(async () => {
     if (syncing) {
+      updateChat(elChat, repoId)
+
       let filenames = await list(repoDir)
       console.log(filenames)
       traverse(filenames, elTree)
