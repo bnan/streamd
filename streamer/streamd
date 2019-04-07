@@ -42,8 +42,7 @@ def main(argv):
         # bundle it
         h,bundle = tempfile.mkstemp(suffix='.bundle')
 
-        subprocess.run(['git', 'bundle', 'create', bundle, 'master'],
-                       cwd=repo_path)
+        repo.git.bundle('create', bundle, 'master')
 
         # issue the creation of the bundle
         with open(bundle,'rb') as bundle_f:
@@ -60,19 +59,31 @@ def main(argv):
 
         assert r.status_code == 200
 
-        try:
-            repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
-        except git.exc.GitCommandError:
-            repo = Repo.init(repo_path)
+        repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+        #try:
+        #    repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+        #except git.exc.GitCommandError:
+        #    repo = Repo.init(repo_path)
 
     remote = 'git://127.0.0.1/' + r.text
 
-    repo.create_remote('streamd-remote', remote)
+    try:
+        repo.create_remote('streamd-remote', remote)
+    except git.exc.GitCommandError:  # remote exists
+        pass
 
-    open(os.path.join(repo_path, STREAMD_MD), 'w').close()
-    repo.git.add(STREAMD_MD)
-    repo.git.commit(m='streamd: initial commit')
-    repo.git.push('streamd-remote', 'master')
+    try:
+        repo.git.checkout(b='master')
+    except git.exc.GitCommandError:  # branch exists
+        repo.git.checkout('master')
+
+    try:
+        open(os.path.join(repo_path, STREAMD_MD), 'a').close()
+        repo.git.add(STREAMD_MD)
+        repo.git.commit(m='streamd: initial commit')
+        repo.git.push('streamd-remote', 'master')
+    except git.exc.GitCommandError:  # file was already added
+        pass
 
     print(f'Streaming on {remote}...')
     watch(repo)

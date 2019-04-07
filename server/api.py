@@ -26,6 +26,8 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
+STREAMD_COMMENTS_INIT = '__STREAMD_COMMENTS_INIT__'
+
 os.makedirs(REPO_BASE, exist_ok=True)
 os.makedirs(REPO_LOCAL_BASE, exist_ok=True)
 
@@ -117,7 +119,7 @@ def new_repository():
         repo_path = os.path.join(REPO_BASE, repo_id+'.git')
 
         try:
-            repo = Repo(os.path.join(repo_path))
+            repo = Repo(repo_path)
         except git.exc.NoSuchPathError:
             break
 
@@ -125,12 +127,11 @@ def new_repository():
         h,bundle = tempfile.mkstemp(suffix='.bundle')
         bundle_f.save(bundle)
 
-        subprocess.run(['git', 'clone', '--bare', bundle, repo_id],
-                       cwd=REPO_BASE)
+        subprocess.run(['git', 'clone', '--bare', bundle, repo_path])
 
         os.remove(bundle)
     else:
-        repo = Repo.init(os.path.join(repo_path), bare=True)
+        Repo.init(repo_path, bare=True)
 
     open(os.path.join(repo_path, 'git-daemon-export-ok'), 'w').close()
 
@@ -138,14 +139,20 @@ def new_repository():
 
     repo = Repo.clone_from(repo_path, os.path.join(REPO_LOCAL_BASE, repo_id))
 
-    repo.git.checkout(b='master')
-    repo.git.checkout(orphan='streamd-comments')
+    try:
+        repo.git.checkout(orphan='streamd-comments')
+    except git.exc.GitCommandError:  # the branch exists
+        repo.git.checkout('streamd-comments')
 
-    init_file = os.path.join(repo.working_tree_dir, 'init')
-    open(init_file, 'w').close()
-    repo.index.add([init_file])
-    repo.index.commit("add init file")
-    repo.git.push('origin', 'streamd-comments')
+    try:
+        streamd_init = os.path.join(repo.working_tree_dir,
+                                    STREAMD_COMMENTS_INIT)
+        open(streamd_init, 'a').close()
+        repo.git.add(streamd_init)
+        repo.git.commit(m='streamd: initial commit')
+        repo.git.push('origin', 'streamd-comments')
+    except git.exc.GitCommandError:  # the branch exists
+        pass
 
     return repo_id
 
