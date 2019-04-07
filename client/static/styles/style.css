@@ -1,0 +1,13 @@
+#chat{
+    padding: 0;
+    height:80vh;
+    overflow-y:auto;
+    text-align: end;
+}
+
+pre{
+    height:80vh;
+    overflow-y:auto;
+}
+
+
