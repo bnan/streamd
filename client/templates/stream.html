@@ -10,11 +10,10 @@
     </head>
 
     <body>
-        <!-- Navbar -->
         <header>
             <a class="logo">streamd.sh/<small>{{ context.id }}</small></a>
         </header>
-        <!-- Page Container -->
+
         <main>
         <div class="container">
             <div class="row">
@@ -30,11 +29,16 @@
                             </article>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" id="progress-bar">
                         <div class="col-sm">
-                            <progress value="450" max="1000">
-                            </progress>
+
+
+                            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+
+
                         </div>
+                        <button disabled class="secondary">Sync</button>
+
                     </div>
 
                 </div>
@@ -45,12 +49,12 @@
                                 <ul>
                                     <li>
                                         <h5>ludeed @ <input type="button" id="commit-text" 
-                                            onClick="changeCommit(this.value)" value="AL51jc"></h5>
+                                                                          onClick="changeCommit(this.value)" value="AL51jc"></h5>
                                         <p>isto não faz sentido nenhum. não brinquem comigo deficientes</p>
                                     </li>
                                     <li>
                                         <h5>ludeed @ <input type="button" id="commit-text" 
-                                            onClick="changeCommit(this.value)" value="AL51jc"></h5>
+                                                                          onClick="changeCommit(this.value)" value="AL51jc"></h5>
                                         <p>isto não faz sentido nenhum. não brinquem comigo deficientes</p>
                                     </li>
                                     </ol>

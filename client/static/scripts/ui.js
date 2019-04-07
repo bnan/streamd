@@ -37,8 +37,6 @@ var data = {
     ]
 };
 
-traverse(data, maindir);
-
 function traverse(obj, ul){
 
     var span =document.createElement("span");
@@ -47,11 +45,11 @@ function traverse(obj, ul){
     var li= document.createElement("li");
     span.innerHTML= obj["name"];
     li.appendChild(span)
+    ul.innerHTML = ''
     ul.appendChild(li);
 
     for(var i = 0; i < obj["contents"].length; i++) {
         let new_obj = obj["contents"][i];
-        console.log(new_obj);
         var new_ul= document.createElement("ul");
         ul.appendChild(new_ul);
         traverse(new_obj, new_ul);
@@ -84,4 +82,10 @@ function sendText(remote_id) {
 
 function changeCommit(e) {
     document.getElementById("msg_commit").value = e;
+}
+
+var slider = document.getElementById("myRange");
+
+slider.oninput = function() {
+  console.log(this.value);
 }
