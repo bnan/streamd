@@ -70,7 +70,8 @@ function sendUsername(username_new) {
 
 function sendText(remote_id) {
     console.log("send text")
-    let username =  document.getElementById("username_text").value;
+    //let username =  document.getElementById("username_text").value;
+    let username = "demo";
     console.log(username)
     if( username == ""){
         console.log("no name")
@@ -78,7 +79,8 @@ function sendText(remote_id) {
         return;
     }
 
-    thread = document.getElementById("msg_commit").value;
+    //thread = document.getElementById("msg_commit").value;
+    thread = "demo"
     console.log(thread)
 
     text = document.getElementById("msg_text").value;

@@ -15,19 +15,19 @@ async function updateChat(chatEl, repo_id){
                 console.log(json[elem][message])
 
                 var li = document.createElement("li");
-                var input = document.createElement("input");
-                var h5 = document.createElement("h5");
+                //var input = document.createElement("input");
+                //var h5 = document.createElement("h5");
                 var p = document.createElement("p");
 
-                h5.innerHTML = json[elem][message]["username"] +" @ ";
+                //h5.innerHTML = json[elem][message]["username"] +" @ ";
                 p.innerHTML = json[elem][message]["text"];
-                input.setAttribute("type","button");
-                input.setAttribute("id","commit-text");
-                input.setAttribute("onClick","changeCommit(this.value)");
-                input.setAttribute("value",repo_id);
+                //input.setAttribute("type","button");
+                //input.setAttribute("id","commit-text");
+                //input.setAttribute("onClick","changeCommit(this.value)");
+                //input.setAttribute("value",repo_id);
 
-                h5.appendChild(input);
-                li.appendChild(h5)
+                //h5.appendChild(input);
+                //li.appendChild(h5)
                 li.appendChild(p)
 
                 chatEl.appendChild(li);
