@@ -12,8 +12,7 @@ var data = {
             "contents": [
                 {
                     "name": "fileA1",
-                    "contents": []
-                }
+                    "contents": [] }
             ]
         },
         {
@@ -96,7 +95,17 @@ var slider = document.getElementById("myRange");
 
 slider.oninput = async function() {
   console.log('commits', commitsList)
-  let idx = parseInt(this.value) % commitsList.commits.length
+  let idx = parseInt(commitsList.commits.length * parseInt(this.value)/100)
   console.log('idx', this.value, commitsList.commits.length, idx)
   await commit(repoDir, commitsList.commits[idx])
+  traverse(filenames, document.querySelector('#maindir'))
+}
+
+
+var syncbtn = document.getElementById("syncbtn");
+syncbtn.onclick = async function() {
+  let res = await sync(repoDir)
+  console.log(res)
+  console.log('syncing')
+  slider.value = 100
 }

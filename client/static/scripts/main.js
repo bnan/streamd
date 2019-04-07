@@ -45,6 +45,15 @@ async function commit(repoDir, commit) {
   }
 }
 
+async function sync(repoDir) {
+  try {
+    let response = await fetch(`${STREAM_URL}/commit/${repoDir}`)
+    console.log(response)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 async function list(repoDir) {
   try {
     let response = await fetch(`${STREAM_URL}/files/${repoDir}`)
@@ -70,6 +79,7 @@ let syncing = true
 let commitsList = {}
 let repoDir = ''
 let currentFile = ''
+let filenames = []
 
 
 async function main() {
@@ -96,7 +106,7 @@ async function main() {
     if (syncing) {
       console.log('currentFile', currentFile)
       let file = await load(`${repoDir}/${currentFile}`)
-      let filenames = await list(repoDir)
+      filenames = await list(repoDir)
       commitsList = await commits(repoDir)
       traverse(filenames, elTree)
     }
