@@ -15,6 +15,10 @@ from flask import Flask, jsonify, request, render_template, url_for
 from flask_cors import CORS
 from git import Repo
 
+
+SERVER_HOST = '127.0.0.1'
+SERVER_PORT = 1337
+
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -30,9 +34,7 @@ os.makedirs(REPO_LOCAL_BASE, exist_ok=True)
 @app.route('/', methods=['GET'])
 def index():
     list_available = os.listdir(REPO_LOCAL_BASE);
-
-    context = [ {"code":x,"description":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} for x in list_available ]
-
+    context = [{"code": x, "url": f'http://{SERVER_HOST}:{SERVER_PORT}/stream/{x}'} for x in list_available]
     return render_template('index.html', streams=context)
 
 @app.route('/stream/<stream_code>', methods=['GET'])
@@ -154,4 +156,4 @@ def new_repository():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=1337, debug=True)
+    app.run(host=SERVER_HOST, port=SERVER_PORT, debug=True)
