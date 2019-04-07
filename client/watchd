@@ -83,7 +83,7 @@ def flat2nested(f, d, i):
 def files(repo_id):
     repo = Repo(os.path.join(BASE_DIR, repo_id))
 
-    files = repo.git.ls_tree('-r', '--name-only', 'master').split()
+    files = repo.git.ls_files().split()
     print(files)
 
     d = {'name': 'Source', 'contents': []}
