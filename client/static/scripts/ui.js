@@ -93,6 +93,9 @@ function changeCommit(e) {
 
 var slider = document.getElementById("myRange");
 
-slider.oninput = function() {
-  console.log(this.value);
+slider.oninput = async function() {
+  console.log('commits', commitsList)
+  let idx = parseInt(this.value) % commitsList.commits.length
+  console.log('idx', this.value, commitsList.commits.length, idx)
+  await commit(repoDir, commitsList.commits[idx])
 }
