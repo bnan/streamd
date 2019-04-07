@@ -55,7 +55,10 @@ def main(argv):
 
     while True:
         if not os.path.isfile(os.path.join(repo.working_tree_dir, HOLD_FILE)):
-            repo.git.pull('origin', 'master')
+            try:
+                repo.git.pull('origin', 'master')
+            except git.exc.GitCommandError:  # branch exists
+                pass
 
         time.sleep(0.1)
 
