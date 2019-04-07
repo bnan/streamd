@@ -1,6 +1,8 @@
 #!/bin/bash
 
+mkdir -p "$HOME/streamd"
+
 git daemon --reuseaddr \
            --verbose --informative-errors \
            --enable=upload-pack --enable=receive-pack \
-           --base-path=$HOME/streamd
+           --base-path="$HOME/streamd"

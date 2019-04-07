@@ -15,6 +15,10 @@ from flask import Flask, jsonify, request, render_template, url_for
 from flask_cors import CORS
 from git import Repo
 
+
+SERVER_HOST = '127.0.0.1'
+SERVER_PORT = 1337
+
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -22,15 +26,15 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
+STREAMD_COMMENTS_INIT = '__STREAMD_COMMENTS_INIT__'
+
 os.makedirs(REPO_BASE, exist_ok=True)
 os.makedirs(REPO_LOCAL_BASE, exist_ok=True)
 
 @app.route('/', methods=['GET'])
 def index():
     list_available = os.listdir(REPO_LOCAL_BASE);
-
-    context = [ {"code":x,"description":"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."} for x in list_available ]
-
+    context = [{"code": x, "url": f'http://{SERVER_HOST}:{SERVER_PORT}/stream/{x}'} for x in list_available]
     return render_template('index.html', streams=context)
 
 @app.route('/stream/<stream_code>', methods=['GET'])
@@ -42,8 +46,10 @@ def stream(stream_code):
         "css":url_for('static', filename='styles/style.css'),
         "main":url_for('static', filename='scripts/main.js'),
         "stream_code": stream_code,
+        "id": stream_code
+        
     }
-    
+
     return render_template('stream.html', context=context)
 
 
@@ -113,7 +119,7 @@ def new_repository():
         repo_path = os.path.join(REPO_BASE, repo_id+'.git')
 
         try:
-            repo = Repo(os.path.join(repo_path))
+            repo = Repo(repo_path)
         except git.exc.NoSuchPathError:
             break
 
@@ -121,12 +127,11 @@ def new_repository():
         h,bundle = tempfile.mkstemp(suffix='.bundle')
         bundle_f.save(bundle)
 
-        subprocess.run(['git', 'clone', '--bare', bundle, repo_id],
-                       cwd=REPO_BASE)
+        subprocess.run(['git', 'clone', '--bare', bundle, repo_path])
 
         os.remove(bundle)
     else:
-        repo = Repo.init(os.path.join(repo_path), bare=True)
+        Repo.init(repo_path, bare=True)
 
     open(os.path.join(repo_path, 'git-daemon-export-ok'), 'w').close()
 
@@ -134,27 +139,23 @@ def new_repository():
 
     repo = Repo.clone_from(repo_path, os.path.join(REPO_LOCAL_BASE, repo_id))
 
-    repo.git.checkout(b='master')
-    repo.git.checkout(orphan='streamd-comments')
+    try:
+        repo.git.checkout(orphan='streamd-comments')
+    except git.exc.GitCommandError:  # the branch exists
+        repo.git.checkout('streamd-comments')
 
-    init_file = os.path.join(repo.working_tree_dir, 'init')
-    open(init_file, 'w').close()
-    repo.index.add([init_file])
-    repo.index.commit("add init file")
-    repo.git.push('origin', 'streamd-comments')
+    try:
+        streamd_init = os.path.join(repo.working_tree_dir,
+                                    STREAMD_COMMENTS_INIT)
+        open(streamd_init, 'a').close()
+        repo.git.add(streamd_init)
+        repo.git.commit(m='streamd: initial commit')
+        repo.git.push('origin', 'streamd-comments')
+    except git.exc.GitCommandError:  # the branch exists
+        pass
 
-
-    #mythread = MyThread()
-    #mythread.start()
-    #return 'as'
     return repo_id
 
 
-#class Publisher(threading.Thread):
-#    def run(self):
-#        print("{} started!".format(self.getName()))              # "Thread-x started!"
-#        time.sleep(1)                                      # Pretend to work for a second
-#        print("{} finished!".format(self.getName()))             # "Thread-x finished!"
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=1337, debug=True)
+    app.run(host=SERVER_HOST, port=SERVER_PORT, debug=True)
