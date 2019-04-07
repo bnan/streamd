@@ -43,7 +43,7 @@ def stream(stream_code):
         "main":url_for('static', filename='scripts/main.js'),
         "stream_code": stream_code,
     }
-    
+
     return render_template('stream.html', context=context)
 
 

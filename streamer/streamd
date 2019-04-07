@@ -74,8 +74,7 @@ def main(argv):
     repo.git.commit(m='streamd: initial commit')
     repo.git.push('streamd-remote', 'master')
 
-    print('remote', remote)
-
+    print(f'Streaming on {remote}...')
     watch(repo)
 
 
