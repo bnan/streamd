@@ -63,16 +63,23 @@ function sendUsername(username_new) {
     document.getElementById("modal-control").checked = false;
 }
 
-function sendText() {
+function sendText(remote_id) {
+    console.log("send text")
     let username =  document.getElementById("username_text").value;
+    console.log(username)
     if( username == ""){
         console.log("no name")
         document.getElementById("modal-control").checked = true;
         return;
     }
 
-    // TODO
+    thread = document.getElementById("msg_commit").value;
+    console.log(thread)
 
+    text = document.getElementById("msg_text").value;
+    console.log(text)
+
+    send_comment(remote_id, thread, username, text)
 }
 
 function changeCommit(e) {
