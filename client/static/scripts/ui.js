@@ -74,3 +74,7 @@ function sendText() {
     // TODO
 
 }
+
+function changeCommit(e) {
+    document.getElementById("msg_commit").value = e;
+}
