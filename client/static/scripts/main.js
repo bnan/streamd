@@ -2,11 +2,11 @@ const API_URL = 'http://0.0.0.0:1337/api/v1'
 const STREAM_URL = 'http://0.0.0.0:1338'
 const WATCHD_URL = 'http://0.0.0.0:1338/watchd'
 
-async function list() {
+async function list(repoDir) {
   try {
-    let response = await fetch(`${STREAM_URL}`)
+    let response = await fetch(`${STREAM_URL}/files/${repoDir}`)
     let json = await response.json()
-    return json.files
+    return json
   } catch (error) {
     console.error(error)
   }
@@ -29,26 +29,27 @@ async function main() {
   const repoDir = pieces[pieces.length-1]
   //const extension = 'python'
 
-  const el = document.querySelector('#source pre code')
-
-  el.onselectstart = function() {
+  const elCode = document.querySelector('#source pre code')
+  elCode.onselectstart = function() {
     syncing = false
   }
-
-  el.onmouseup = function() {
+  elCode.onmouseup = function() {
     if (!syncing) {
       document.execCommand('copy')
       syncing = true
     }
   }
 
-  let filenames = await list()
-  console.log('filenames', filenames)
+  const elTree = document.querySelector('#maindir')
 
   setInterval(async () => {
     if (syncing) {
+      let filenames = await list(repoDir)
+      console.log(filenames)
+      traverse(filenames, elTree)
+
       let file = await load(`${repoDir}/STREAMD.md`)
-      el.innerHTML = file
+      elCode.innerHTML = file
     }
   }, 1000)
 }
