@@ -11,9 +11,11 @@ import git
 import requests
 from git import Repo
 
+STREAMD_MD = 'STREAMD.md'
+
 
 def watch(repo):
-    repo.git.checkout(b='master')
+    repo.git.checkout('master')
 
     try:
         while True:
@@ -58,11 +60,19 @@ def main(argv):
 
         assert r.status_code == 200
 
-        repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+        try:
+            repo = Repo.clone_from('git://127.0.0.1/' + r.text, repo_path)
+        except git.exc.GitCommandError:
+            repo = Repo.init(repo_path)
 
     remote = 'git://127.0.0.1/' + r.text
 
     repo.create_remote('streamd-remote', remote)
+
+    open(os.path.join(repo_path, STREAMD_MD), 'w').close()
+    repo.git.add(STREAMD_MD)
+    repo.git.commit(m='streamd: initial commit')
+    repo.git.push('streamd-remote', 'master')
 
     print('remote', remote)
 

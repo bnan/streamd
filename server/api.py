@@ -22,6 +22,9 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
+os.makedirs(REPO_BASE, exist_ok=True)
+os.makedirs(REPO_LOCAL_BASE, exist_ok=True)
+
 @app.route('/', methods=['GET'])
 def index():
     list_available = os.listdir(REPO_LOCAL_BASE);
@@ -32,15 +35,16 @@ def index():
 
 @app.route('/stream/<stream_code>', methods=['GET'])
 def stream(stream_code):
-    urls = {"js":url_for('static', filename='scripts/ui.js'),
-            "prismcss":url_for('static', filename='styles/prism.css'),
-            "prismjs":url_for('static', filename='scripts/prism.js'),
-            "css":url_for('static', filename='styles/style.css'),
-            "main":url_for('static', filename='scripts/main.js'),
-            }
-
-    return render_template('stream.html', urls=urls)
-
+    context = {
+        "js":url_for('static', filename='scripts/ui.js'),
+        "prismcss":url_for('static', filename='styles/prism.css'),
+        "prismjs":url_for('static', filename='scripts/prism.js'),
+        "css":url_for('static', filename='styles/style.css'),
+        "main":url_for('static', filename='scripts/main.js'),
+        "stream_code": stream_code,
+    }
+    
+    return render_template('stream.html', context=context)
 
 
 @app.route('/api/v1/streams', methods=['GET'])
