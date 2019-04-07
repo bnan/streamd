@@ -52,9 +52,15 @@ function traverse(obj, ul){
     for(var i = 0; i < obj["contents"].length; i++) {
         let new_obj = obj["contents"][i];
         console.log(new_obj);
+        console.log("shit");
         var new_ul= document.createElement("ul");
         ul.appendChild(new_ul);
         traverse(new_obj, new_ul);
     }
 
+}
+var slider = document.getElementById("myRange");
+
+slider.oninput = function() {
+  console.log(this.value);
 }
