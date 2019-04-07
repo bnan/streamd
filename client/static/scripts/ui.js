@@ -38,13 +38,20 @@ var data = {
 };
 
 function traverse(obj, ul){
-
     var span =document.createElement("span");
     //span.setAttribute("class","caret");
 
     var li= document.createElement("li");
     span.innerHTML= obj["name"];
     li.appendChild(span)
+    if(obj['contents'].length == 0) {
+      li.addEventListener('click', async (e) => {
+        console.log(e.target.textContent)
+        let pieces = window.location.href.split('/')
+        let repoDir = pieces[pieces.length-1]
+        await load(`${repoDir}/${e.target.textContent}`)
+      })
+    }
     ul.innerHTML = ''
     ul.appendChild(li);
 

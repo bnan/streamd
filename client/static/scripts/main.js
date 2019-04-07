@@ -16,6 +16,7 @@ async function load(filename) {
   try {
     let response = await fetch(`${WATCHD_URL}/${filename}`)
     let file = await response.text()
+    document.querySelector('#source pre code').innerHTML = file
     return file
   } catch (error) {
     console.error(error)
@@ -42,14 +43,13 @@ async function main() {
 
   const elTree = document.querySelector('#maindir')
 
+  let file = await load(`${repoDir}/STREAMD.md`)
+
   setInterval(async () => {
     if (syncing) {
       let filenames = await list(repoDir)
       console.log(filenames)
       traverse(filenames, elTree)
-
-      let file = await load(`${repoDir}/STREAMD.md`)
-      elCode.innerHTML = file
     }
   }, 1000)
 }
