@@ -113,11 +113,21 @@
                     <div id="submit_msg" class="row">
                         <div class="col-sm">
                             <input id="msg_text" type="text" name="chat_text">
-                            <input id="msg_btn" type="button" value="Send"></button>
+                            <input id="msg_btn" type="button" value="Send" onclick="sendText()"></button>
                         </div>
                     </div>
 
                             </aside>
+                </div>
+
+                <input type="checkbox" id="modal-control" class="modal">
+                <div>
+                    <div class="card">
+                        <label for="modal-control" class="modal-close" ></label>
+                        <h3 class="section">username:</h3>
+                        <input id="username_text" type="text" name="username">
+                        <input id="msg_btn" type="button" value="Ok" onclick="sendUsername()"></button>
+                    </div>
                 </div>
         </main>
         <script src="{{ context.js }}"></script>

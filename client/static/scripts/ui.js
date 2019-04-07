@@ -58,3 +58,19 @@ function traverse(obj, ul){
     }
 
 }
+
+function sendUsername(username_new) {
+    document.getElementById("modal-control").checked = false;
+}
+
+function sendText() {
+    let username =  document.getElementById("username_text").value;
+    if( username == ""){
+        console.log("no name")
+        document.getElementById("modal-control").checked = true;
+        return;
+    }
+
+    // TODO
+
+}
