@@ -45,7 +45,7 @@ function traverse(obj, ul){
     li.appendChild(span)
     if(obj['contents'].length == 0) {
       li.addEventListener('click', async (e) => {
-        console.log(e.target.textContent)
+        //console.log(e.target.textContent)
         let pieces = window.location.href.split('/')
         let repoDir = pieces[pieces.length-1]
         await load(`${repoDir}/${e.target.textContent}`)
@@ -69,22 +69,22 @@ function sendUsername(username_new) {
 }
 
 function sendText(remote_id) {
-    console.log("send text")
+    //console.log("send text")
     //let username =  document.getElementById("username_text").value;
     let username = "demo";
-    console.log(username)
+    //console.log(username)
     if( username == ""){
-        console.log("no name")
+        //console.log("no name")
         document.getElementById("modal-control").checked = true;
         return;
     }
 
     //thread = document.getElementById("msg_commit").value;
     thread = "demo"
-    console.log(thread)
+    //console.log(thread)
 
     text = document.getElementById("msg_text").value;
-    console.log(text)
+    //console.log(text)
 
     send_comment(remote_id, thread, username, text)
 }
@@ -96,18 +96,19 @@ function changeCommit(e) {
 var slider = document.getElementById("myRange");
 
 slider.oninput = async function() {
-  console.log('commits', commitsList)
+  //console.log('commits', commitsList)
   let idx = parseInt(commitsList.commits.length * parseInt(this.value)/100)
-  console.log('idx', this.value, commitsList.commits.length, idx)
+  //console.log('idx', this.value, commitsList.commits.length, idx)
   await commit(repoDir, commitsList.commits[idx])
   traverse(filenames, document.querySelector('#maindir'))
+  await load(`${repoDir}/${currentFile}`)
 }
 
 
 var syncbtn = document.getElementById("syncbtn");
 syncbtn.onclick = async function() {
   let res = await sync(repoDir)
-  console.log(res)
-  console.log('syncing')
+  await load(`${repoDir}/${currentFile}`)
   slider.value = 100
+  traverse(filenames, document.querySelector('#maindir'))
 }

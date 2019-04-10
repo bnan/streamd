@@ -6,14 +6,9 @@ async function updateChat(chatEl, repo_id){
     try {
         let response = await fetch(`${API_URL}/comments/${repo_id}`)
         let json = await response.json()
-        console.log(json)
 
         for(let elem of Object.keys(json)  ) {
-
-            console.log(elem)
             for(let message of Object.keys(json[elem])  ) {
-                console.log(json[elem][message])
-
                 var li = document.createElement("li");
                 //var input = document.createElement("input");
                 //var h5 = document.createElement("h5");
@@ -57,7 +52,6 @@ async function send_comment(remote_id, thread, username, comment){
     try {
         let response = await fetch(`${API_URL}/comments/${remote_id}/${thread}`, otherParams)
         let json = await response.json()
-        console.log(json)
     } catch (error) {
         console.error(error)
     }
@@ -76,7 +70,6 @@ async function commits(repoDir) {
 async function commit(repoDir, commit) {
     try {
         let response = await fetch(`${STREAM_URL}/commit/${repoDir}/${commit}`)
-        console.log(response)
     } catch (error) {
         console.error(error)
     }
@@ -85,7 +78,6 @@ async function commit(repoDir, commit) {
 async function sync(repoDir) {
     try {
         let response = await fetch(`${STREAM_URL}/commit/${repoDir}`)
-        console.log(response)
     } catch (error) {
         console.error(error)
     }
@@ -117,6 +109,7 @@ let commitsList = {}
 let repoDir = ''
 let currentFile = ''
 let filenames = []
+let file = ''
 
 
 async function main() {
@@ -137,23 +130,18 @@ async function main() {
 
     const elTree = document.querySelector('#maindir')
 
-    let file = await load(`${repoDir}/STREAMD.md`)
 
     const elChat = document.querySelector('#ul-chat')
 
     currentFile = 'STREAMD.md'
 
     await sync(repoDir)
-
-    
+    file = await load(`${repoDir}/STREAMD.md`)
 
     setInterval(async () => {
         if (syncing) {
-            updateChat(elChat, repoDir)
-            console.log('currentFile', currentFile)
-            let file = await load(`${repoDir}/${currentFile}`)
             filenames = await list(repoDir)
-            console.log('filenames', filenames)
+            file = await load(`${repoDir}/${currentFile}`)
             commitsList = await commits(repoDir)
             traverse(filenames, elTree)
         }

@@ -153,8 +153,6 @@ def new_repository():
 
     open(os.path.join(repo_path, 'git-daemon-export-ok'), 'w').close()
 
-    print(repo_path)
-
     repo = Repo.clone_from(repo_path, os.path.join(REPO_LOCAL_BASE, repo_id))
 
     try:
