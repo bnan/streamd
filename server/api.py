@@ -40,7 +40,6 @@ def index():
 @app.route('/stream/<stream_code>', methods=['GET'])
 def stream(stream_code):
     context = {
-        "js":url_for('static', filename='scripts/ui.js'),
         "prismcss":url_for('static', filename='styles/prism.css'),
         "prismjs":url_for('static', filename='scripts/prism.js'),
         "css":url_for('static', filename='styles/style.css'),
