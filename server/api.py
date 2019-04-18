@@ -26,8 +26,6 @@ REPO_BASE = os.path.join(Path.home(), 'streamd')
 REPO_LOCAL_BASE = os.path.join(Path.home(), 'streamd-local')
 REPO_ID_LENGTH = 6  # use 6 characters for repo ids
 
-STREAMD_COMMENTS_INIT = '__STREAMD_COMMENTS_INIT__'
-
 os.makedirs(REPO_BASE, exist_ok=True)
 os.makedirs(REPO_LOCAL_BASE, exist_ok=True)
 
@@ -60,70 +58,6 @@ def list_available_streams():
 
     return jsonify(d)
 
-
-comments_db = {}
-# Also send thread in URL so that I can dump json from POST and don't
-# have to parse it to know which thread is and then remove that field
-# so that it won't be stored redundantly
-@app.route('/api/v1/comments/<remote_id>/<thread>', methods=['POST'])
-def add_comment(remote_id, thread):
-    repo_dir = f'{REPO_LOCAL_BASE}/{remote_id}'
-
-    # Sanity checks to ensure correctness
-    try:
-        payload = request.get_json();
-    except KeyError:
-        # You must provide those form parameters
-        return jsonify(**{ 'error': True, 'message': 'Mal-formed message' })
-
-    username = payload['username']
-
-    # Verify if repo already exists
-    repo = Repo(repo_dir)
-    if repo.bare:
-        # There is no such repo you silly boy
-        return jsonify(**{ 'error': True, 'message': 'Could not find repo' })
-
-
-    # Verify if there are already a thread
-    message_folder = f'{repo_dir}/{thread}'
-    if not os.path.exists(message_folder):
-        os.makedirs(message_folder)
-
-    # Timestamp new messages to provide order in files
-    timestamp = time.time()
-
-    message_file = f'{message_folder}/{timestamp}'
-
-    with open(message_file,'w+') as f:
-        f.write(json.dumps(payload))
-
-    # Commit changes to messages-branch
-    repo.git.checkout('streamd-comments')
-    repo.git.add(message_file)
-    repo.git.commit(m=f'add {username} message')
-    repo.git.push('origin', 'streamd-comments')
-
-    # in-memory comment storage
-    if remote_id not in comments_db:
-        comments_db[remote_id] = {}
-    if thread not in comments_db[remote_id]:
-        comments_db[remote_id][thread] = {}
-    comments_db[remote_id][thread][timestamp] = payload
-
-    return jsonify(**{ 'error': False, 'message': 'Message Stored' })
-
-
-@app.route('/api/v1/comments/<repo_id>')
-def get_comments(repo_id):
-    try:
-        ret = comments_db[repo_id]
-        comments_db.clear();
-        return jsonify(ret)
-    except:
-        return ''
-
-
 @app.route('/new/repo', methods=['POST'])
 def new_repository():
     bundle_f = flask.request.files.get('bundle')
@@ -153,21 +87,6 @@ def new_repository():
     open(os.path.join(repo_path, 'git-daemon-export-ok'), 'w').close()
 
     repo = Repo.clone_from(repo_path, os.path.join(REPO_LOCAL_BASE, repo_id))
-
-    try:
-        repo.git.checkout(orphan='streamd-comments')
-    except git.exc.GitCommandError:  # the branch exists
-        repo.git.checkout('streamd-comments')
-
-    try:
-        streamd_init = os.path.join(repo.working_tree_dir,
-                                    STREAMD_COMMENTS_INIT)
-        open(streamd_init, 'a').close()
-        repo.git.add(streamd_init)
-        repo.git.commit(m='streamd: initial commit')
-        repo.git.push('origin', 'streamd-comments')
-    except git.exc.GitCommandError:  # the branch exists
-        pass
 
     return repo_id
 
